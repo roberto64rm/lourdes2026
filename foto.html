@@ -15,7 +15,7 @@
     }
 
     .contenitore {
-      max-width: 900px;
+      max-width: 1100px;
       margin: 40px auto;
       padding: 25px;
       text-align: center;
@@ -27,8 +27,8 @@
     }
 
     .sottotitolo {
-      margin-bottom: 35px;
       font-size: 18px;
+      margin-bottom: 35px;
     }
 
     .sezione {
@@ -36,16 +36,31 @@
       border: 1px solid #cfd8e3;
       border-radius: 12px;
       padding: 20px;
-      margin: 18px 0;
+      margin: 22px 0;
       text-align: left;
     }
 
     .sezione h2 {
       margin-top: 0;
-      font-size: 21px;
+      font-size: 22px;
     }
 
-    .foto {
+    .galleria {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .galleria img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .nota {
       color: #666;
       font-size: 15px;
     }
@@ -65,91 +80,111 @@
     .indietro:hover {
       background: #eaf2f8;
     }
-    .galleria {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-top: 15px;
-    }
-
-    .galleria img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 8px;
-      cursor: pointer;
-    }
   </style>
 </head>
 
 <body>
 
-  <div class="contenitore">
+<div class="contenitore">
 
-    <h1>Archivio fotografico</h1>
+  <h1>Archivio fotografico</h1>
 
-    <div class="sottotitolo">
-      Il mio viaggio a Lourdes — luglio 2026
-    </div>
-
-   <div class="sezione">
-  <h2>La preparazione e la partenza</h2>
-
-  <div class="galleria">
-    <img src="foto/IMG_20260727_125555.jpg" alt="Lourdes 2026">
-    <img src="foto/IMG_20260727_135304.jpg" alt="Lourdes 2026">
-    <img src="foto/IMG_20260727_135341.jpg" alt="Lourdes 2026">
-    <img src="foto/IMG_20260727_171105.jpg" alt="Lourdes 2026">
-    <img src="foto/IMG_20260727_171110.jpg" alt="Lourdes 2026">
+  <div class="sottotitolo">
+    Il mio viaggio a Lourdes — luglio 2026
   </div>
 
-  </div>
+  <div id="contenuto"></div>
 
-    <div class="sezione">
-      <h2>Il viaggio verso Lourdes</h2>
-      <div class="foto">Fotografie in preparazione</div>
-    </div>
+  <a class="indietro" href="index.html">
+    Torna alla pagina principale
+  </a>
 
-    <div class="sezione">
-      <h2>Lourdes e la vita quotidiana</h2>
-      <div class="foto">Fotografie in preparazione</div>
-    </div>
+</div>
 
-    <div class="sezione">
-      <h2>Il gruppo</h2>
-      <div class="foto">Fotografie in preparazione</div>
-    </div>
+<script>
+const proprietario = "roberto64rm";
+const repository = "lourdes2026";
+const cartellaBase = "foto";
 
-    <div class="sezione">
-      <h2>Il Santuario</h2>
-      <div class="foto">Fotografie in preparazione</div>
-    </div>
+const sezioni = [
+  ["01-preparazione-partenza", "La preparazione e la partenza"],
+  ["02-viaggio", "Il viaggio verso Lourdes"],
+  ["03-lourdes", "Lourdes e la vita quotidiana"],
+  ["04-gruppo", "Il gruppo"],
+  ["05-santuario", "Il Santuario"],
+  ["06-luoghi-bernadette", "I luoghi di Bernadette"],
+  ["07-via-crucis", "La Via Crucis"],
+  ["08-ultimi-momenti", "Gli ultimi momenti"],
+  ["09-ricordi", "I ricordi conservati"]
+];
 
-    <div class="sezione">
-      <h2>I luoghi di Bernadette</h2>
-      <div class="foto">Fotografie in preparazione</div>
-    </div>
+async function caricaFoto(cartella, titolo) {
 
-    <div class="sezione">
-      <h2>La Via Crucis</h2>
-      <div class="foto">Fotografie in preparazione</div>
-    </div>
+  const contenitore = document.getElementById("contenuto");
 
-    <div class="sezione">
-      <h2>Gli ultimi momenti</h2>
-      <div class="foto">Fotografie in preparazione</div>
-    </div>
+  const sezione = document.createElement("div");
+  sezione.className = "sezione";
 
-    <div class="sezione">
-      <h2>I ricordi conservati</h2>
-      <div class="foto">Fotografie in preparazione</div>
-    </div>
+  const h2 = document.createElement("h2");
+  h2.textContent = titolo;
+  sezione.appendChild(h2);
 
-    <a class="indietro" href="index.html">
-      Torna alla pagina principale
-    </a>
+  const galleria = document.createElement("div");
+  galleria.className = "galleria";
+  sezione.appendChild(galleria);
 
-  </div>
+  contenitore.appendChild(sezione);
+
+  const url =
+    `https://api.github.com/repos/${proprietario}/${repository}/contents/${cartellaBase}/${cartella}`;
+
+  try {
+    const risposta = await fetch(url);
+
+    if (!risposta.ok) {
+      galleria.innerHTML =
+        '<div class="nota">Nessuna fotografia disponibile</div>';
+      return;
+    }
+
+    const files = await risposta.json();
+
+    const immagini = files.filter(file =>
+      file.type === "file" &&
+      /\.(jpg|jpeg|png|webp)$/i.test(file.name)
+    );
+
+    if (immagini.length === 0) {
+      galleria.innerHTML =
+        '<div class="nota">Nessuna fotografia disponibile</div>';
+      return;
+    }
+
+    immagini.forEach(file => {
+
+      const img = document.createElement("img");
+
+      img.src = file.download_url;
+      img.alt = file.name;
+      img.loading = "lazy";
+
+      img.onclick = () => {
+        window.open(file.download_url, "_blank");
+      };
+
+      galleria.appendChild(img);
+    });
+
+  } catch (errore) {
+    galleria.innerHTML =
+      '<div class="nota">Errore nel caricamento delle fotografie</div>';
+  }
+}
+
+sezioni.forEach(sezione => {
+  caricaFoto(sezione[0], sezione[1]);
+});
+</script>
 
 </body>
 </html>
