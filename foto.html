@@ -65,6 +65,20 @@
     .indietro:hover {
       background: #eaf2f8;
     }
+    .galleria {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .galleria img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -78,10 +92,18 @@
       Il mio viaggio a Lourdes — luglio 2026
     </div>
 
-    <div class="sezione">
-      <h2>La preparazione e la partenza</h2>
-      <div class="foto">Fotografie in preparazione</div>
-    </div>
+   <div class="sezione">
+  <h2>La preparazione e la partenza</h2>
+
+  <div class="galleria">
+    <img src="foto/IMG_20260727_125555.jpg" alt="Lourdes 2026">
+    <img src="foto/IMG_20260727_135304.jpg" alt="Lourdes 2026">
+    <img src="foto/IMG_20260727_135341.jpg" alt="Lourdes 2026">
+    <img src="foto/IMG_20260727_171105.jpg" alt="Lourdes 2026">
+    <img src="foto/IMG_20260727_171110.jpg" alt="Lourdes 2026">
+  </div>
+
+  </div>
 
     <div class="sezione">
       <h2>Il viaggio verso Lourdes</h2>
