@@ -42,7 +42,19 @@
 
     .documento h2 {
       margin-top: 0;
-      font-size: 21px;
+      font-size: 19px;
+    }
+
+    .documento a {
+      display: inline-block;
+      margin-top: 8px;
+      color: #245b8a;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .documento a:hover {
+      text-decoration: underline;
     }
 
     .nota {
@@ -61,48 +73,103 @@
       font-weight: bold;
       background: white;
     }
-
-    .indietro:hover {
-      background: #eaf2f8;
-    }
   </style>
 </head>
 
 <body>
 
-  <div class="contenitore">
+<div class="contenitore">
 
-    <h1>Documenti</h1>
+  <h1>Documenti</h1>
 
-    <div class="sottotitolo">
-      Materiali e documenti relativi al pellegrinaggio a Lourdes
-    </div>
-
-    <div class="documento">
-      <h2>Programma ufficiale del pellegrinaggio</h2>
-      <div class="nota">Documento in preparazione</div>
-    </div>
-
-    <div class="documento">
-      <h2>Documentazione ORP</h2>
-      <div class="nota">Documento in preparazione</div>
-    </div>
-
-    <div class="documento">
-      <h2>Materiali su Lourdes e Bernadette</h2>
-      <div class="nota">Documenti in preparazione</div>
-    </div>
-
-    <div class="documento">
-      <h2>Altri documenti del viaggio</h2>
-      <div class="nota">Materiale in preparazione</div>
-    </div>
-
-    <a class="indietro" href="index.html">
-      Torna alla pagina principale
-    </a>
-
+  <div class="sottotitolo">
+    Materiali relativi al pellegrinaggio a Lourdes
   </div>
+
+  <div id="elenco-documenti">
+    <div class="nota">Caricamento documenti...</div>
+  </div>
+
+  <a class="indietro" href="index.html">
+    Torna alla pagina principale
+  </a>
+
+</div>
+
+<script>
+
+const proprietario = "roberto64rm";
+const repository = "lourdes2026";
+const cartella = "documenti";
+
+async function caricaDocumenti() {
+
+  const contenitore = document.getElementById("elenco-documenti");
+
+  const url =
+    `https://api.github.com/repos/${proprietario}/${repository}/contents/${cartella}`;
+
+  try {
+
+    const risposta = await fetch(url);
+
+    if (!risposta.ok) {
+      contenitore.innerHTML =
+        '<div class="nota">Nessun documento disponibile</div>';
+      return;
+    }
+
+    const files = await risposta.json();
+
+    const documenti = files
+      .filter(file =>
+        file.type === "file" &&
+        !file.name.startsWith(".")
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    if (documenti.length === 0) {
+      contenitore.innerHTML =
+        '<div class="nota">Nessun documento disponibile</div>';
+      return;
+    }
+
+    contenitore.innerHTML = "";
+
+    documenti.forEach(file => {
+
+      const box = document.createElement("div");
+      box.className = "documento";
+
+      const titolo = document.createElement("h2");
+
+      titolo.textContent = file.name
+        .replace(/\.[^/.]+$/, "")
+        .replace(/_/g, " ");
+
+      const link = document.createElement("a");
+      link.href = file.download_url;
+      link.target = "_blank";
+      link.textContent = "Apri documento";
+
+      box.appendChild(titolo);
+      box.appendChild(link);
+
+      contenitore.appendChild(box);
+
+    });
+
+  } catch (errore) {
+
+    contenitore.innerHTML =
+      '<div class="nota">Errore nel caricamento dei documenti</div>';
+
+  }
+}
+
+caricaDocumenti();
+
+</script>
 
 </body>
 </html>
