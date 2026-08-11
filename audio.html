@@ -42,7 +42,12 @@
 
     .audio-box h2 {
       margin-top: 0;
-      font-size: 21px;
+      font-size: 19px;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 10px;
     }
 
     .nota {
@@ -61,43 +66,103 @@
       font-weight: bold;
       background: white;
     }
-
-    .indietro:hover {
-      background: #eaf2f8;
-    }
   </style>
 </head>
 
 <body>
 
-  <div class="contenitore">
+<div class="contenitore">
 
-    <h1>Registrazioni audio</h1>
+  <h1>Registrazioni audio</h1>
 
-    <div class="sottotitolo">
-      Registrazioni originali del pellegrinaggio a Lourdes
-    </div>
-
-    <div class="audio-box">
-      <h2>Don Giulio — riflessioni e omelia</h2>
-      <div class="nota">Registrazione in preparazione</div>
-    </div>
-
-    <div class="audio-box">
-      <h2>Bernadette — spiegazioni durante il viaggio</h2>
-      <div class="nota">Registrazione in preparazione</div>
-    </div>
-
-    <div class="audio-box">
-      <h2>Altre registrazioni</h2>
-      <div class="nota">Materiale audio in preparazione</div>
-    </div>
-
-    <a class="indietro" href="index.html">
-      Torna alla pagina principale
-    </a>
-
+  <div class="sottotitolo">
+    Registrazioni originali del pellegrinaggio a Lourdes
   </div>
+
+  <div id="elenco-audio">
+    <div class="nota">Caricamento registrazioni...</div>
+  </div>
+
+  <a class="indietro" href="index.html">
+    Torna alla pagina principale
+  </a>
+
+</div>
+
+<script>
+
+const proprietario = "roberto64rm";
+const repository = "lourdes2026";
+const cartella = "audio";
+
+async function caricaAudio() {
+
+  const contenitore = document.getElementById("elenco-audio");
+
+  const url =
+    `https://api.github.com/repos/${proprietario}/${repository}/contents/${cartella}`;
+
+  try {
+
+    const risposta = await fetch(url);
+
+    if (!risposta.ok) {
+      contenitore.innerHTML =
+        '<div class="nota">Nessuna registrazione disponibile</div>';
+      return;
+    }
+
+    const files = await risposta.json();
+
+    const audioFiles = files
+      .filter(file =>
+        file.type === "file" &&
+        /\.(mp3|wav|m4a|ogg)$/i.test(file.name)
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    if (audioFiles.length === 0) {
+      contenitore.innerHTML =
+        '<div class="nota">Nessuna registrazione disponibile</div>';
+      return;
+    }
+
+    contenitore.innerHTML = "";
+
+    audioFiles.forEach(file => {
+
+      const box = document.createElement("div");
+      box.className = "audio-box";
+
+      const titolo = document.createElement("h2");
+
+      titolo.textContent = file.name
+        .replace(/\.[^/.]+$/, "")
+        .replace(/_/g, " ");
+
+      const player = document.createElement("audio");
+      player.controls = true;
+      player.preload = "none";
+      player.src = file.download_url;
+
+      box.appendChild(titolo);
+      box.appendChild(player);
+
+      contenitore.appendChild(box);
+
+    });
+
+  } catch (errore) {
+
+    contenitore.innerHTML =
+      '<div class="nota">Errore nel caricamento delle registrazioni</div>';
+
+  }
+}
+
+caricaAudio();
+
+</script>
 
 </body>
 </html>
